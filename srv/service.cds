@@ -5,6 +5,7 @@ service EmbeddingStorageService {
         embedding
     };
 
+    action addNotes(notes: array of Notes);
     function getRagResponse(searchWord: String) returns array of Notes;
 }
 

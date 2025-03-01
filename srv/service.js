@@ -1,35 +1,54 @@
 const cds = require('@sap/cds')
 
-module.exports = class EmbeddingStorageService extends cds.ApplicationService { init() {
+module.exports = class EmbeddingStorageService extends cds.ApplicationService { 
+  init() {
+    this.before(['CREATE', 'UPDATE'], 'Notes', async (req) => {
+      const embedding = await this.getEmbedding(req.data.note)
+      console.log('embedding', embedding)
+      req.data.embedding = JSON.stringify(embedding)
+    })
 
-  this.before (['CREATE', 'UPDATE'], 'Notes', async (req) => {
+    this.on('addNotes', async (req) => {
+      console.log('addNotes', req.data)
+      // const db = await cds.connect.to('db')
+      const { Notes } = this.entities
+
+      // set embedding
+      req.data.notes.forEach(async (note) => {
+        const embedding = await this.getEmbedding(note.note)
+        note.embedding = JSON.stringify(embedding)
+      })      
+      // add notes
+      await INSERT.into(Notes).entries(req.data.notes)
+    })
+
+    this.on('getRagResponse', async (req) => {
+      const searchWord = req.data.searchWord
+      const embedding = await this.getEmbedding(searchWord)
+      
+      const db = await cds.connect.to('db')
+      const { Notes } = db.entities
+
+      // retrieve relevant notes
+      const notes = await SELECT.from(Notes)
+                                .columns('ID', 'note')
+                                .limit(3)
+                                .where`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) > 0.7`
+                                .orderBy`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) desc`
+    
+      return notes                    
+    })
+
+    return super.init()
+  }
+
+  async getEmbedding(text) {
     const db = await cds.connect.to('db')
     const { Dummy } = db.entities
 
     // get embedding
-    const { embedding } = await SELECT .one .from(Dummy) .where({ id: 1 })
-                              .columns `vector_embedding(${req.data.note}, 'DOCUMENT', 'SAP_NEB.20240715') as embedding`
-    console.log('embedding', embedding)
-    req.data.embedding = JSON.stringify(embedding)
-  })
-
-  this.on ('getRagResponse', async (req) => {
-    const searchWord = req.data.searchWord
-    const db = await cds.connect.to('db')
-    const { Dummy, Notes } = db.entities
-    
-    // get embedding
-    const { embedding } = await SELECT .one .from(Dummy) .where({ id: 1 })
-                              .columns `vector_embedding(${searchWord}, 'DOCUMENT', 'SAP_NEB.20240715') as embedding`
-
-    // retrieve relevant notes
-    const notes = await SELECT.from(Notes)
-                              .columns('ID', 'note')
-                              .limit(3)
-                              .where`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) > 0.7`
-  
-    return notes                    
-   })
-
-  return super.init()
-}}
+    const { embedding } = await SELECT.one.from(Dummy).where({ id: 1 })
+                              .columns `vector_embedding(${text}, 'DOCUMENT', 'SAP_NEB.20240715') as embedding`
+    return embedding
+  }
+}

@@ -13,10 +13,11 @@ POST {{server}}/odata/v4/embedding-storage/Notes
 Content-Type: application/json
 
 {
-  "note": "Hello World"
+  "note": "My name is Mio"
 }
 
-@searchWord = Hello
+
 
 ### Get Rag Response
+@searchWord = Hello
 GET {{server}}/odata/v4/embedding-storage/getRagResponse(searchWord='{{searchWord}}')
