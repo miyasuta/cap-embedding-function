@@ -5,7 +5,11 @@
 # @name Notes_GET
 GET {{server}}/odata/v4/embedding-storage/Notes
 
+### Delete Notes
+POST {{server}}/odata/v4/embedding-storage/deleteNotes
+Content-Type: application/json
 
+{}
 
 ### Notes
 # @name Notes_POST
@@ -16,8 +20,23 @@ Content-Type: application/json
   "note": "My name is Mio"
 }
 
+###
+POST {{server}}/odata/v4/embedding-storage/addNotes
+Content-Type: application/json
+
+{
+  "notes": [
+    {
+      "note": "The capital of Japan is Tokyo"
+    },
+    {
+      "note": "The capital of France is Paris"
+    }
+  ]
+}
+
 
 
 ### Get Rag Response
-@searchWord = Hello
+@searchWord = capital city of Japan
 GET {{server}}/odata/v4/embedding-storage/getRagResponse(searchWord='{{searchWord}}')

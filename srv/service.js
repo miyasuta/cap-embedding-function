@@ -4,22 +4,33 @@ module.exports = class EmbeddingStorageService extends cds.ApplicationService {
   init() {
     this.before(['CREATE', 'UPDATE'], 'Notes', async (req) => {
       const embedding = await this.getEmbedding(req.data.note)
-      console.log('embedding', embedding)
       req.data.embedding = JSON.stringify(embedding)
     })
 
     this.on('addNotes', async (req) => {
-      console.log('addNotes', req.data)
-      // const db = await cds.connect.to('db')
       const { Notes } = this.entities
 
       // set embedding
-      req.data.notes.forEach(async (note) => {
-        const embedding = await this.getEmbedding(note.note)
-        note.embedding = JSON.stringify(embedding)
-      })      
+      await Promise.all(
+        req.data.notes.map(async (note) => {
+          const embedding = await this.getEmbedding(note.note)
+          note.embedding = JSON.stringify(embedding)
+        })
+      )
+     
       // add notes
       await INSERT.into(Notes).entries(req.data.notes)
+
+      // return success message
+      return 'Notes added successfully'
+    })
+
+    this.on('deleteNotes', async (req) => {
+      const { Notes } = this.entities
+      // delete notes
+      await DELETE.from(Notes)
+
+      return 'Notes deleted successfully'
     })
 
     this.on('getRagResponse', async (req) => {
@@ -33,7 +44,7 @@ module.exports = class EmbeddingStorageService extends cds.ApplicationService {
       const notes = await SELECT.from(Notes)
                                 .columns('ID', 'note')
                                 .limit(3)
-                                .where`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) > 0.7`
+                                // .where`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) > 0.7`
                                 .orderBy`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) desc`
     
       return notes                    
