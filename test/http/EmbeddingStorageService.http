@@ -1,0 +1,22 @@
+@server = http://localhost:4004
+
+
+### Notes
+# @name Notes_GET
+GET {{server}}/odata/v4/embedding-storage/Notes
+
+
+
+### Notes
+# @name Notes_POST
+POST {{server}}/odata/v4/embedding-storage/Notes
+Content-Type: application/json
+
+{
+  "note": "Hello World"
+}
+
+@searchWord = Hello
+
+### Get Rag Response
+GET {{server}}/odata/v4/embedding-storage/getRagResponse(searchWord='{{searchWord}}')
