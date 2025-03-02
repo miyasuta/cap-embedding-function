@@ -7,6 +7,10 @@ service EmbeddingStorageService {
 
     action addNotes(notes: array of Notes) returns String;
     action deleteNotes() returns String;
-    function getRagResponse(searchWord: String) returns array of Notes;
+    function similaritySearch(searchWord: String) returns array of {
+        ID: UUID;
+        note: String;
+        cosine_similarity: Decimal;
+    };
 }
 

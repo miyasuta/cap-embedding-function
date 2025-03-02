@@ -33,7 +33,7 @@ module.exports = class EmbeddingStorageService extends cds.ApplicationService {
       return 'Notes deleted successfully'
     })
 
-    this.on('getRagResponse', async (req) => {
+    this.on('similaritySearch', async (req) => {
       const searchWord = req.data.searchWord
       const embedding = await this.getEmbedding(searchWord)
       
@@ -42,7 +42,10 @@ module.exports = class EmbeddingStorageService extends cds.ApplicationService {
 
       // retrieve relevant notes
       const notes = await SELECT.from(Notes)
-                                .columns('ID', 'note')
+                                .columns(
+                                         'ID', 
+                                         'note'
+                                        )
                                 .limit(3)
                                 // .where`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) > 0.7`
                                 .orderBy`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) desc`

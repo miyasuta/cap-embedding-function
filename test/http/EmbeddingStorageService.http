@@ -3,7 +3,7 @@
 
 ### Notes
 # @name Notes_GET
-GET {{server}}/odata/v4/embedding-storage/Notes
+GET {{server}}/odata/v4/embedding-storage/Notes?$select=note
 
 ### Delete Notes
 POST {{server}}/odata/v4/embedding-storage/deleteNotes
@@ -17,9 +17,10 @@ POST {{server}}/odata/v4/embedding-storage/Notes
 Content-Type: application/json
 
 {
-  "note": "My name is Mio"
+  "note": "Dentist appointment on Thursday at 2 PM – don't forget to confirm."
 }
 
+###
 ###
 POST {{server}}/odata/v4/embedding-storage/addNotes
 Content-Type: application/json
@@ -27,16 +28,26 @@ Content-Type: application/json
 {
   "notes": [
     {
-      "note": "The capital of Japan is Tokyo"
+      "note": "Meeting with John on Monday at 10 AM about project roadmap."
     },
     {
-      "note": "The capital of France is Paris"
+      "note": "Remember to buy milk, eggs, and bread on the way home."
+    },
+    {
+      "note": "AWS EC2 instance needs to be restarted after applying updates."
+    },
+    {
+      "note": "Read 'The Lean Startup' by Eric Ries for innovation insights."
+    },
+    {
+      "note": "Flight to San Francisco departs at 3:45 PM on April 12th."
     }
   ]
 }
 
 
 
-### Get Rag Response
-@searchWord = capital city of Japan
-GET {{server}}/odata/v4/embedding-storage/getRagResponse(searchWord='{{searchWord}}')
+
+### Similarity Search
+@searchWord = shopping list
+GET {{server}}/odata/v4/embedding-storage/similaritySearch(searchWord='{{searchWord}}')
