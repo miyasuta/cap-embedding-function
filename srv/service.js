@@ -35,17 +35,19 @@ module.exports = class EmbeddingStorageService extends cds.ApplicationService {
 
     this.on('similaritySearch', async (req) => {
       const searchWord = req.data.searchWord
-      const embedding = await this.getEmbedding(searchWord)
+      const embedding = await this.getEmbedding(searchWord)    
+      const embeddingString = JSON.stringify(embedding);
       
       const db = await cds.connect.to('db')
       const { Notes } = db.entities
 
       // retrieve relevant notes
       const notes = await SELECT.from(Notes)
-                                .columns(
-                                         'ID', 
-                                         'note'
-                                        )
+                                .columns
+                                         `ID,
+                                         note,
+                                         cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) as cosine_similarity`
+                                        
                                 .limit(3)
                                 // .where`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) > 0.7`
                                 .orderBy`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) desc`
