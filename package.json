@@ -6,19 +6,24 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@cap-js/hana": "^1",
     "@sap/cds": "^8",
-    "express": "^4",
-    "@cap-js/hana": "^1"
+    "express": "^4"
   },
   "devDependencies": {
+    "@cap-js/cds-typer": ">=0.1",
     "@cap-js/cds-types": "^0.9.0",
     "@cap-js/sqlite": "^1",
-    "@sap/cds-dk": "^8"
+    "@sap/cds-dk": "^8",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
   },
   "scripts": {
     "start": "cds-serve",
     "build": "mbt build -t gen --mtar mta.tar",
-    "deploy": "cf deploy gen/mta.tar"
+    "deploy": "cf deploy gen/mta.tar",
+    "watch": "cds-tsx w"
   },
   "cds": {
     "sql": {
@@ -28,5 +33,8 @@
       "auth": "dummy",
       "db": "hana"
     }
+  },
+  "imports": {
+    "#cds-models/*": "./@cds-models/*/index.js"
   }
 }
