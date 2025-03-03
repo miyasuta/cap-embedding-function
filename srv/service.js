@@ -49,8 +49,7 @@ module.exports = class EmbeddingStorageService extends cds.ApplicationService {
                                          cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) as cosine_similarity`
                                         
                                 .limit(3)
-                                // .where`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) > 0.7`
-                                .orderBy`cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) desc`
+                                .orderBy `cosine_similarity desc`
     
       return notes                    
     })
