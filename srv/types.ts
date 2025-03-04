@@ -8,3 +8,7 @@ export interface SimilaritySearchResult {
     note: string;
     cosine_similarity: number;
 }
+
+export interface Embedding {
+    embedding: number[];
+}

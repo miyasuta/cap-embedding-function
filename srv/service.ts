@@ -1,5 +1,6 @@
 import cds from '@sap/cds'
-import { NotesInput, SimilaritySearchResult } from './types'
+import { NotesInput, SimilaritySearchResult, Embedding } from './types'
+import { Notes as NotesDB, Dummy } from '#cds-models/cap/embedding/function'
 import { Notes as NotesSrv } from '#cds-models/EmbeddingStorageService'
 
 export default class EmbeddingStorageService extends cds.ApplicationService {
@@ -40,27 +41,24 @@ export default class EmbeddingStorageService extends cds.ApplicationService {
     async onSimilaritySearch(req: cds.Request): Promise<SimilaritySearchResult[]> {
         const searchWord = req.data.searchWord
         const embedding = await this.getEmbedding(searchWord)
-        const { Notes } = require('#cds-models/cap/embedding/function')
 
         // retrieve relevant notes
-        const notes = await SELECT.from(Notes)
+        const notes = await SELECT.from(NotesDB)
             .columns
             `ID,
              note,
              cosine_similarity(embedding, to_real_vector(${JSON.stringify(embedding)})) as cosine_similarity`
 
             .limit(3)
-            .orderBy`cosine_similarity desc`
+            .orderBy`cosine_similarity desc` as SimilaritySearchResult[]
 
         return notes
     }
 
     async getEmbedding(text: string): Promise<number[]> {
-        const { Dummy } = require('#cds-models/cap/embedding/function')
-
         // get embedding
         const { embedding } = await SELECT.one.from(Dummy).where({ id: 1 })
-            .columns`vector_embedding(${text}, 'DOCUMENT', 'SAP_NEB.20240715') as embedding`
+            .columns`vector_embedding(${text}, 'DOCUMENT', 'SAP_NEB.20240715') as embedding` as Embedding
         return embedding
     }
 }
